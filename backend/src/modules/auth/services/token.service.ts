@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Config, JwtConfig } from '../../../configs/config.type';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config/dist/config.service';
@@ -9,6 +9,7 @@ import { RefreshTokenRepository } from '../../repositories/services/refresh-toke
 import { AuthCacheService } from './auth-cache.service';
 import { SaveTokenReqDto } from '../models/dto/req/save-token.req.dto';
 import { UserRepository } from '../../repositories/services/user.repository';
+import { TokenType } from '../models/enums/token-type.enum';
 
 @Injectable()
 export class TokenService {
@@ -36,7 +37,9 @@ export class TokenService {
     return { accessToken, refreshToken };
   }
 
-  async generateAndSaveTokens(dto: SaveTokenReqDto): Promise<ITokenPair> {
+  public async generateAndSaveTokens(
+    dto: SaveTokenReqDto,
+  ): Promise<ITokenPair> {
     const tokens = await this.generateAuthToken({
       userId: dto.userId,
       deviceId: dto.deviceId,
@@ -57,5 +60,34 @@ export class TokenService {
       ),
     ]);
     return tokens;
+  }
+
+  public async verifyToken(
+    token: string,
+    type: TokenType,
+  ): Promise<IJwtPayload> {
+    try {
+      return await this.jwtService.verifyAsync(token, {
+        secret: this.getSecret(type),
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+
+  private getSecret(type: TokenType): string {
+    let secret: string;
+    switch (type) {
+      case TokenType.ACCESS:
+        secret = this.jwtConfig.accessSecret;
+        break;
+      case TokenType.REFRESH:
+        secret = this.jwtConfig.refreshSecret;
+        break;
+      default:
+        throw new Error('Invalid token type');
+    }
+    return secret;
   }
 }

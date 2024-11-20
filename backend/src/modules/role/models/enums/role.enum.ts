@@ -4,8 +4,3 @@ export enum RoleEnum {
   MANAGER = 'manager',
   ADMIN = 'admin',
 }
-
-export enum AccountTypesEnum {
-  BASIC = 'basic',
-  PREMIUM = 'premium',
-}

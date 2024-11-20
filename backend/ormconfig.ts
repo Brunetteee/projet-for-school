@@ -1,23 +1,40 @@
 import * as path from 'node:path';
+
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
+
 import configuration from './src/configs/configuration';
 
-
-dotenv.config()
+dotenv.config();
 
 const config = configuration().database;
 
 export default new DataSource({
-  type:'postgres',
+  type: 'postgres',
   host: config.host,
   port: config.port,
   username: config.user,
   password: config.password,
   database: config.name,
-  entities: [path.join(process.cwd(), 'backend','src','database','entities','*.entity.ts')],
-  migrations: [path.join(process.cwd(), 'backend','src','database','migrations','*.ts')],
-  synchronize:false
-
-
-})
+  entities: [
+    path.join(
+      process.cwd(),
+      'backend',
+      'src',
+      'database',
+      'entities',
+      '*.entity.ts',
+    ),
+  ],
+  migrations: [
+    path.join(
+      process.cwd(),
+      'backend',
+      'src',
+      'database',
+      'migrations',
+      '*.ts',
+    ),
+  ],
+  synchronize: false,
+});

@@ -14,4 +14,10 @@ export class TransformerHelper {
   public static uniqueItems({ value }) {
     return value ? Array.from(new Set(value)) : value;
   }
+
+  public static toLowerCaseArray({ value }) {
+    return Array.isArray(value)
+      ? value.map((item) => item.toLowerCase())
+      : value;
+  }
 }
